@@ -26,7 +26,7 @@ GT_BACKEND: list[str] = ["gt:gpu"]
 JOB_ROOT_DIR: str = "jobs/pmap-les/"
 HDF5_VERSION: str = defaults.HDF5_VERSION
 NETCDF_VERSION: str = defaults.NETCDF_VERSION
-NUM_RUNS: int = 15
+NUM_RUNS: int = 1 
 PARTITION: defs.Partition = "standard-g"
 PMAP_DISABLE_LOG: bool = False
 PMAP_ENABLE_BENCHMARKING: bool = True
@@ -50,7 +50,8 @@ USE_CASE: dict[str, list[common.utils.ThreadsLayout]] = {
     # "weak-scaling/bomex-prescribed-boundary/lumi/128": [common.utils.ThreadsLayout(16, 8, 7)],
     # "weak-scaling/bomex-prescribed-boundary/lumi/256": [common.utils.ThreadsLayout(32, 8, 7)],
     # "weak-scaling/bomex-prescribed-boundary/lumi/512": [common.utils.ThreadsLayout(64, 8, 7)],
-    "weak-scaling/bomex-prescribed-boundary/lumi/1024": [common.utils.ThreadsLayout(128, 8, 7)]
+    "real_cases/faroer_500m_nx1501_ny1501_DE2401202500_init06UTC":[common.utils.ThreadsLayout(1,8,7)],
+    # "weak-scaling/bomex-prescribed-boundary/lumi/1024": [common.utils.ThreadsLayout(128, 8, 7)]
     # "weak-scaling/bomex-prescribed-boundary/lumi/2048": [common.utils.ThreadsLayout(256, 8, 7)],
     # "weak-scaling/bomex-prescribed-boundary/lumi/4096": [common.utils.ThreadsLayout(512, 8, 7)],
 }
