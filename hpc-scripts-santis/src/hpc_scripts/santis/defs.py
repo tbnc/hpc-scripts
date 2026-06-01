@@ -30,6 +30,6 @@ UEnv = typing.Literal[
 ]
 valid_uenvs = typing.get_args(UEnv)
 
-uenv_spack_builds_root: str = os.path.join(user_project_dir, "uenv-spack-builds")
+uenv_spack_builds_root: str = os.path.join(project_dir, "shared", "uenv-spack-builds")
 
 jobs_root_dir: str = os.path.join(common.config.APPS_ROOT_DIR, "_jobs")

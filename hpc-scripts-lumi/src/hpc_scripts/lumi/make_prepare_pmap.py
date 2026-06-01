@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
 # >>> config: start
 BRANCH: str = "main"
-PROJECT: Literal["pmap", "pmap-les-shared"] = "pmap"
+PROJECT: Literal["pmap", "pmap-real-cases-shared"] = "pmap"
 # >>> config: end
 
 
@@ -55,7 +55,8 @@ def core(
         if not os.path.exists(pmap_dir):
             common.utils.run(
                 f"git clone -b {branch} git@github.com:PMAP-Project/"
-                f"{'PMAP-LES-shared' if project == 'pmap-les-shared' else 'pmap'}.git {pmap_dir}"
+                f"{'PMAP-real_cases-shared' if project == 'pmap-real-cases-shared' else 'PMAP'}.git"
+                f" {pmap_dir}"
             )
         common.utils.export_variable(project_with_underscores.upper(), pmap_dir)
         pmap_subtree = utils.get_subtree(

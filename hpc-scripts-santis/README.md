@@ -64,7 +64,7 @@ Installing PMAP using the uenv `prgenv-gnu/26.3:v1`, and run a benchmark on one 
 
 # create a spack env for pmap
 ~$ make_build_spack_env_pmap
-~$ . $HPC_SCRIPTS_ROOT_DIR/build_spack_env_pmap.sh
+~$ . $HPCS_SCRIPTS_ROOT_DIR/build_spack_env_pmap.sh
 
 # build and install the main branch of pmap in a dedicated virtual environment, jump into the project
 #  directory and activate the environment

@@ -24,7 +24,7 @@ PMAP_ENABLE_BENCHMARKING: bool = False
 PMAP_ENABLE_OVERCOMPUTING: bool = False
 PMAP_EXTENDED_TIMERS: bool = False
 PMAP_PRECISION: defs.FloatingPointPrecision = "double"
-PROJECT: Literal["pmap", "pmap-les-shared"] = "pmap"
+PROJECT: Literal["pmap", "pmap-real-cases-shared"] = "pmap"
 USE_CASE: str = "thermal"
 # >>> config: end
 
@@ -110,7 +110,7 @@ def core(
                 )
             common.utils.run(f"mkdir -p {output_dir}")
             command = (
-                f"srun {' '.join(srun_options)} ./{select_gpu_fname} pmap-les "
+                f"srun {' '.join(srun_options)} {select_gpu_fname} pmap "
                 f"{os.path.join('config', use_case + '.yml')} "
                 f"--output-directory={output_dir}"
             )

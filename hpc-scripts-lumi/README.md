@@ -18,7 +18,7 @@ Some template dotfiles are also provided in `dotfiles/`, to be symlinked in your
 # containing the source code of the target software and all generated bash scripts, respectively
 # we suggest exporting these env vars in your .bashrc file
 ~$ export HPCS_APPS_ROOT_DIR=/project/project_<project-number>/<user>
-~$ export HPCS_SCRIPTS_ROOT_DIR=/project/project_<project-number>/<user>/_scripts
+~$ export HPCS_SCRIPTS_ROOT_DIR=/project/project_<project-number>/<user>/hpc-scripts
 ```
 
 ### Supported software
@@ -57,7 +57,7 @@ Pass the `-h` flag to any command to get its synopsis.
 
 ### Example
 
-Installing PMAP-LES-shared using the software stack LUMI/25.03, and run a benchmark on one GPU.
+Installing PMAP-real_cases-shared using the software stack LUMI/25.03, and run a benchmark on one GPU.
 
 ```bash
 # build hdf5 with parallel support
@@ -72,19 +72,19 @@ Installing PMAP-LES-shared using the software stack LUMI/25.03, and run a benchm
 
 # build and install pmap in a dedicated virtual environment, jump into the project directory and
 #  activate the environment
-~$ make_prepare_pmap --project=pmap-les-shared --branch=lumi
-~$ . $HPCS_SCRIPTS_ROOT_DIR/prepare_pmap_les_shared.sh
+~$ make_prepare_pmap --project=pmap-real_cases-shared --branch=main
+~$ . $HPCS_SCRIPTS_ROOT_DIR/prepare_pmap_real_cases_shared.sh
 
 # allocate one GPU node on the dev-g partition for an hour
-(...) <HPCS_APPS_ROOT_DIR>/pmap-les-shared/lumi$ pysalloc --partition=dev-g --time=01:00:00
+(...) <HPCS_APPS_ROOT_DIR>/pmap-real_cases-shared/lumi$ pysalloc --partition=dev-g --time=01:00:00
 
-# refresh the script prepare_pmap_les_shared.sh, so to bypass the creation of a new virtual environment
-<HPCS_APPS_ROOT_DIR>/pmap-les-shared/lumi$ make_prepare_pmap --project=pmap-les-shared --branch=lumi
-<HPCS_APPS_ROOT_DIR>/pmap-les-shared/lumi$ . $HPCS_SCRIPTS_ROOT_DIR/prepare_pmap_les_shared.sh
+# refresh the script prepare_pmap_real_cases_shared.sh, so to bypass the creation of a new virtual environment
+<HPCS_APPS_ROOT_DIR>/pmap-real_cases-shared/lumi$ make_prepare_pmap --project=pmap-real_cases-shared --branch=lumi
+<HPCS_APPS_ROOT_DIR>/pmap-real_cases-shared/lumi$ . $HPCS_SCRIPTS_ROOT_DIR/prepare_pmap_real_cases_shared.sh
 
 # generate the script select_gpu.sh (see https://docs.lumi-supercomputer.eu/runjobs/scheduled-jobs/distribution-binding/#gpu-binding)
-(...) <HPCS_APPS_ROOT_DIR>/pmap-les-shared/lumi$ make_select_gpu
+(...) <HPCS_APPS_ROOT_DIR>/pmap-real_cases-shared/lumi$ make_select_gpu
 
 # run the moist baroclinic wave benchmark
-(...) <HPCS_APPS_ROOT_DIR>/pmap-les-shared/lumi$ GT_BACKEND=dace:gpu srun --ntasks=1 --cpus-per-task=7 ./../../select_gpu.sh pmap-les config/baroclinic_wave_sphere_moist.yml
+(...) <HPCS_APPS_ROOT_DIR>/pmap-real_cases-shared/lumi$ GT_BACKEND=dace:gpu srun --ntasks=1 --cpus-per-task=7 ./../../select_gpu.sh pmap config/baroclinic_wave_sphere_moist.yml
 ```

@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 # >>> config: start
 ACCOUNT: int = defaults.ACCOUNT
-BRANCH: str = "main"
+BRANCH: str = "lumi"
 DACE_DEFAULT_BLOCK_SIZE: str = "'256,1,1'"
 DRY_RUN: bool = False
 ENV: defs.ProgrammingEnvironment = "cray"
@@ -23,23 +23,24 @@ GHEX_AGGREGATE_FIELDS: bool = False
 GHEX_COLLECT_STATISTICS: bool = False
 GHEX_TRANSPORT_BACKEND: defs.GHEXTransportBackend = "mpi"
 GT_BACKEND: list[str] = ["gt:gpu"]
-JOB_ROOT_DIR: str = "jobs/pmap-les/"
+JOB_ROOT_DIR: str = "jobs"
 HDF5_VERSION: str = defaults.HDF5_VERSION
 NETCDF_VERSION: str = defaults.NETCDF_VERSION
-NUM_RUNS: int = 1 
-PARTITION: defs.Partition = "standard-g"
+NUM_RUNS: int = 3 
+PARTITION: defs.Partition = "dev-g"
 PMAP_DISABLE_LOG: bool = False
-PMAP_ENABLE_BENCHMARKING: bool = True
+PMAP_ENABLE_BENCHMARKING: bool = False
 PMAP_ENABLE_OVERCOMPUTING: bool = True
 PMAP_EXTENDED_TIMERS: bool = False
-PMAP_PRECISION: list[defs.FloatingPointPrecision] = ["single"]
-PROJECT: Literal["pmap", "pmap-les-real-cases-shared"] = "pmap"
+PMAP_PRECISION: list[defs.FloatingPointPrecision] = ["double", "single"]
+PROJECT: Literal["pmap", "pmap-real-cases-shared"] = "pmap-real-cases-shared"
 PYTHON_VERSION: defs.PythonVersion = defaults.PYTHON_VERSION
 ROCM_VERSION: str = defaults.ROCM_VERSION
 STACK: defs.SoftwareStack = defaults.STACK
 STACK_VERSION: str = defaults.STACK_VERSION
 TIME: str = "01:00:00"
 USE_CASE: dict[str, list[common.utils.ThreadsLayout]] = {
+    "baroclinic_wave_sphere_moist": [common.utils.ThreadsLayout(1, 1, 56)]
     # "weak-scaling/bomex-prescribed-boundary/lumi/1": [common.utils.ThreadsLayout(1, 1, 7)],
     # "weak-scaling/bomex-prescribed-boundary/lumi/2": [common.utils.ThreadsLayout(1, 2, 7)],
     # "weak-scaling/bomex-prescribed-boundary/lumi/4": [common.utils.ThreadsLayout(1, 4, 7)],
@@ -50,7 +51,7 @@ USE_CASE: dict[str, list[common.utils.ThreadsLayout]] = {
     # "weak-scaling/bomex-prescribed-boundary/lumi/128": [common.utils.ThreadsLayout(16, 8, 7)],
     # "weak-scaling/bomex-prescribed-boundary/lumi/256": [common.utils.ThreadsLayout(32, 8, 7)],
     # "weak-scaling/bomex-prescribed-boundary/lumi/512": [common.utils.ThreadsLayout(64, 8, 7)],
-    "real_cases/faroer_500m_nx1501_ny1501_DE2401202500_init06UTC":[common.utils.ThreadsLayout(1,8,7)],
+    # "real_cases/faroer_500m_nx1501_ny1501_DE2401202500_init06UTC":[common.utils.ThreadsLayout(1,8,7)],
     # "weak-scaling/bomex-prescribed-boundary/lumi/1024": [common.utils.ThreadsLayout(128, 8, 7)]
     # "weak-scaling/bomex-prescribed-boundary/lumi/2048": [common.utils.ThreadsLayout(256, 8, 7)],
     # "weak-scaling/bomex-prescribed-boundary/lumi/4096": [common.utils.ThreadsLayout(512, 8, 7)],
@@ -65,6 +66,7 @@ def main():
         for threads_layout in USE_CASE[use_case]:
             job_dir = os.path.join(
                 JOB_ROOT_DIR,
+                PROJECT,
                 BRANCH,
                 use_case,
                 pmap_precision,
