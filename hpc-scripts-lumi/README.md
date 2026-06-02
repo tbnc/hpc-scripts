@@ -30,6 +30,7 @@ Some template dotfiles are also provided in `dotfiles/`, to be symlinked in your
 * [dwarf-p-cloudsc2-tl-ad](https://github.com/ecmwf-ifs/dwarf-p-cloudsc2-tl-ad)
 * [PMAP](https://github.com/PMAP-Project/PMAP)
 * [PMAP-LES-shared](https://github.com/PMAP-Project/PMAP-LES-shared)
+* [PMAP-real_cases-shared](https://github.com/PMAP-Project/PMAP-real_cases-shared)
 * [ecRad](https://github.com/ecmwf-ifs/ecrad)
 * [ecRad-versions](https://github.com/PMAP-Project/ecRad-versions)
 
@@ -72,7 +73,7 @@ Installing PMAP-real_cases-shared using the software stack LUMI/25.03, and run a
 
 # build and install pmap in a dedicated virtual environment, jump into the project directory and
 #  activate the environment
-~$ make_prepare_pmap --project=pmap-real_cases-shared --branch=main
+~$ make_prepare_pmap --project=pmap-real_cases-shared --branch=lumi
 ~$ . $HPCS_SCRIPTS_ROOT_DIR/prepare_pmap_real_cases_shared.sh
 
 # allocate one GPU node on the dev-g partition for an hour
