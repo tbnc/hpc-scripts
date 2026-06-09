@@ -52,6 +52,7 @@ def core(
     pmap_precision: defs.FloatingPointPrecision,
     project: str,
     python_version: defs.PythonVersion,
+    refresh_python_venv: bool,
     rocm_version: str,
     stack: defs.SoftwareStack,
     stack_version: str,
@@ -66,6 +67,7 @@ def core(
         partition,
         project,
         python_version,
+        refresh_python_venv,
         rocm_version,
         stack,
         stack_version,
@@ -148,6 +150,7 @@ if __name__ == "__main__":
     parser.add_argument("--pmap-precision", type=str, default=PMAP_PRECISION)
     parser.add_argument("--project", type=str, default=PROJECT)
     parser.add_argument("--python-version", type=str, default=defaults.PYTHON_VERSION)
+    parser.add_argument("--refresh-python-venv", action="store_true")
     parser.add_argument("--rocm-version", type=str, default=defaults.ROCM_VERSION)
     parser.add_argument("--stack", type=str, default=defaults.STACK)
     parser.add_argument("--stack-version", type=str, default=defaults.STACK_VERSION)
