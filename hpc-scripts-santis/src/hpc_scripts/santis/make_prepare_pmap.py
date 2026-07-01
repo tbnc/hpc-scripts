@@ -17,6 +17,7 @@ def core(
     branch: str,
     ghex_transport_backend: defs.GHEXTransportBackend,
     python_version: defs.PythonVersion,
+    refresh_python_venv: bool,
     uenv: defs.UEnv,
 ) -> str:
     with common.utils.output_file(filename="prepare_pmap") as (_, fname):
@@ -49,16 +50,19 @@ def core(
                 pmap_dir, "_venv", uenv_with_dashes, f"py{python_version.replace('.', '')}"
             )
             common.utils.export_variable("PMAP_VENV", venv_dir)
+
             if not os.path.exists(venv_dir):
+                refresh_python_venv = True
                 utils.setup_uv(uenv)
                 common.utils.run(f"uv venv --python=$(which python{python_version}) {venv_dir}")
-                common.utils.run(f". {venv_dir}/bin/activate")
+
+            common.utils.run(f". {venv_dir}/bin/activate")
+
+            if refresh_python_venv:
                 common.utils.run(
                     f"uv pip install -e "
                     f".[dev,gpu{'-cuda12x' if python_version < '3.14' else ''},mpi-test]"
                 )
-            else:
-                common.utils.run(f". {venv_dir}/bin/activate")
 
     return fname
 
@@ -70,6 +74,7 @@ def main() -> None:
         "--ghex-transport-backend", type=str, default=defaults.GHEX_TRANSPORT_BACKEND
     )
     parser.add_argument("--python-version", type=str, default=defaults.PYTHON_VERSION)
+    parser.add_argument("--refresh-python-venv", action="store_true")
     parser.add_argument("--uenv", type=str, default=defaults.UENV)
     args = parser.parse_args()
     core(**args.__dict__)
