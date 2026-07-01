@@ -86,7 +86,7 @@ def run(*args: str, split: bool = False, verbose: bool = False) -> None:
     if len(OUTPUT_FILE_REGISTRY) > 0:
         OUTPUT_FILE_REGISTRY[-1].write(command + "\n")
     else:
-        subprocess.run(command, capture_output=True, check=True, shell=True)
+        subprocess.run(command, capture_output=False, check=True, shell=True)
 
 
 class InvalidArgumentError(Exception):
