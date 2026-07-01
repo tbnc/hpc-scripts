@@ -24,6 +24,7 @@ def core(
 
         utils.setup_mpi()
         utils.setup_ghex(ghex_transport_backend)
+        utils.setup_cuda()
 
         pmap_root = os.path.join(common.config.APPS_ROOT_DIR, "pmap")
         if not os.path.exists(pmap_dir := os.path.join(pmap_root, branch)):

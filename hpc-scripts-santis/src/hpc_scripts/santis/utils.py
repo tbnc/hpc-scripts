@@ -47,3 +47,7 @@ def setup_ghex(transport_backend: defs.GHEXTransportBackend) -> None:
         common.utils.export_variable("GHEX_USE_GPU", 1)
         common.utils.export_variable("GHEX_GPU_TYPE", "NVIDIA")
         common.utils.export_variable("GHEX_GPU_ARCH", "90")
+
+
+def setup_cuda() -> None:
+    common.utils.export_variable("CUDA_HOME", "$(spack location -i cuda)")
