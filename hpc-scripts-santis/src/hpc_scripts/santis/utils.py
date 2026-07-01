@@ -33,9 +33,9 @@ def setup_uv(uenv: defs.UEnv) -> None:
 
 def setup_mpi() -> None:
     common.utils.export_variable("CC", "mpicc")
-    common.utils.export_variable("CXX", "mpicxx")
+    common.utils.export_variable("CXX", "mpic++")
     common.utils.export_variable("MPICC", "mpicc")
-    common.utils.export_variable("MPICXX", "mpicxx")
+    common.utils.export_variable("MPICXX", "mpic++")
     common.utils.export_variable("MPICH_GPU_SUPPORT_ENABLED", "1")
 
 

@@ -16,7 +16,7 @@ def main() -> None:
         project="pmap",
         specs=(
             "boost",
-            "cray-mpich",
+            "openmpi" if "openmpi" in args.__dict__["uenv"] else "cray-mpich",
             "cuda",
             "hdf5",
             "netcdf-c",
