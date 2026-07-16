@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
 # >>> config: start
 BRANCH: str = "main"
-PROJECT: Literal["pmap", "pmap-real_cases-shared"] = "pmap"
+PROJECT: Literal["pmap", "pmap-real_cases-shared", "pmap-snapshots"] = "pmap"
 # >>> config: end
 
 
@@ -56,8 +56,7 @@ def core(
         if not os.path.exists(pmap_dir):
             common.utils.run(
                 f"git clone -b {branch} git@github.com:PMAP-Project/"
-                f"{'PMAP-real_cases-shared' if project == 'pmap-real_cases-shared' else 'PMAP'}.git"
-                f" {pmap_dir}"
+                f"{project.replace('pmap', 'PMAP')}.git {pmap_dir}"
             )
         common.utils.export_variable(project_with_underscores.upper(), pmap_dir)
         pmap_subtree = utils.get_subtree(
@@ -107,7 +106,7 @@ def core(
 
             # install the model with all its python dependencies
             if refresh_python_venv:
-                common.utils.run("uv pip install -e .[dev,gpu,mpi-test]")
+                common.utils.run("uv pip install --prerelease=allow -e .[dev,gpu,mpi-test]")
 
     return fname
 

@@ -34,6 +34,7 @@ PMAP_ENABLE_OVERCOMPUTING: bool = True
 PMAP_EXTENDED_TIMERS: bool = False
 PMAP_PRECISION: list[defs.FloatingPointPrecision] = ["double", "single"]
 PROJECT: Literal["pmap", "pmap-real_cases-shared"] = "pmap-real_cases-shared"
+PROJECT: Literal["pmap", "pmap-real_cases-shared", "pmap-snapshots"] = "pmap-real_cases-shared"
 PYTHON_VERSION: defs.PythonVersion = defaults.PYTHON_VERSION
 REFRESH_PYTHON_VERSION: bool = False
 ROCM_VERSION: str = defaults.ROCM_VERSION

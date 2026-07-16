@@ -24,7 +24,7 @@ PMAP_ENABLE_BENCHMARKING: bool = False
 PMAP_ENABLE_OVERCOMPUTING: bool = False
 PMAP_EXTENDED_TIMERS: bool = False
 PMAP_PRECISION: defs.FloatingPointPrecision = "double"
-PROJECT: Literal["pmap", "pmap-real_cases-shared"] = "pmap"
+PROJECT: Literal["pmap", "pmap-real_cases-shared", "pmap-snapshots"] = "pmap"
 USE_CASE: str = "thermal"
 # >>> config: end
 
