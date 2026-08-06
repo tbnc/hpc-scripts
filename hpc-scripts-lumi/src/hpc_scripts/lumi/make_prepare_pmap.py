@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 
 # >>> config: start
 BRANCH: str = "main"
-PROJECT: Literal["pmap", "pmap-real_cases-shared"] = "pmap"
+PROJECT: Literal["pmap", "pmap-real_cases-shared", "pmap-snapshots"] = "pmap"
 # >>> config: end
 
 
@@ -35,6 +35,7 @@ def core(
     partition: defs.Partition,
     project: str,
     python_version: defs.PythonVersion,
+    refresh_python_venv: bool,
     rocm_version: str,
     stack: defs.SoftwareStack,
     stack_version: Optional[str],
@@ -55,8 +56,7 @@ def core(
         if not os.path.exists(pmap_dir):
             common.utils.run(
                 f"git clone -b {branch} git@github.com:PMAP-Project/"
-                f"{'PMAP-real_cases-shared' if project == 'pmap-real_cases-shared' else 'PMAP'}.git"
-                f" {pmap_dir}"
+                f"{project.replace('pmap', 'PMAP')}.git {pmap_dir}"
             )
         common.utils.export_variable(project_with_underscores.upper(), pmap_dir)
         pmap_subtree = utils.get_subtree(
@@ -96,14 +96,17 @@ def core(
         with common.utils.chdir(pmap_dir, restore=False):
             if not os.path.exists(pmap_venv_dir):
                 # create virtual environment if it does not exist yet
+                refresh_python_venv = True
                 common.utils.run(
                     f"uv venv --python={python} --prompt={pmap_subtree} {pmap_venv_dir}"
                 )
-                common.utils.run(f"source {pmap_venv_dir}/bin/activate")
-                common.utils.run("uv pip install -e .[dev,gpu,mpi-test]")
-            else:
-                # activate virtual environment
-                common.utils.run(f"source {pmap_venv_dir}/bin/activate")
+
+            # activate venv
+            common.utils.run(f"source {pmap_venv_dir}/bin/activate")
+
+            # install the model with all its python dependencies
+            if refresh_python_venv:
+                common.utils.run("uv pip install --prerelease=allow -e .[dev,gpu,mpi-test]")
 
     return fname
 
@@ -120,6 +123,7 @@ def main() -> None:
     parser.add_argument("--partition", type=str, default=defaults.PARTITION)
     parser.add_argument("--project", type=str, default=PROJECT)
     parser.add_argument("--python-version", type=str, default=defaults.PYTHON_VERSION)
+    parser.add_argument("--refresh-python-venv", action="store_true")
     parser.add_argument("--rocm-version", type=str, default=defaults.ROCM_VERSION)
     parser.add_argument("--stack", type=str, default=defaults.STACK)
     parser.add_argument("--stack-version", type=str, default=defaults.STACK_VERSION)

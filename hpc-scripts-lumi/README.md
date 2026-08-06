@@ -29,7 +29,6 @@ Some template dotfiles are also provided in `dotfiles/`, to be symlinked in your
 * [dwarf-p-cloudsc](https://github.com/ecmwf-ifs/dwarf-p-cloudsc)
 * [dwarf-p-cloudsc2-tl-ad](https://github.com/ecmwf-ifs/dwarf-p-cloudsc2-tl-ad)
 * [PMAP](https://github.com/PMAP-Project/PMAP)
-* [PMAP-LES-shared](https://github.com/PMAP-Project/PMAP-LES-shared)
 * [PMAP-real_cases-shared](https://github.com/PMAP-Project/PMAP-real_cases-shared)
 * [ecRad](https://github.com/ecmwf-ifs/ecrad)
 * [ecRad-versions](https://github.com/PMAP-Project/ecRad-versions)
@@ -79,8 +78,9 @@ Installing PMAP-real_cases-shared using the software stack LUMI/25.03, and run a
 # allocate one GPU node on the dev-g partition for an hour
 (...) <HPCS_APPS_ROOT_DIR>/pmap-real_cases-shared/lumi$ pysalloc --partition=dev-g --time=01:00:00
 
-# refresh the script prepare_pmap_real_cases_shared.sh, so to bypass the creation of a new virtual environment
-<HPCS_APPS_ROOT_DIR>/pmap-real_cases-shared/lumi$ make_prepare_pmap --project=pmap-real_cases-shared --branch=lumi
+# refresh the script prepare_pmap_real_cases_shared.sh, so to bypass the creation of the virtual environment
+# the flag --refresh-python-venv can be used to re-install the model with all its python dependencies
+<HPCS_APPS_ROOT_DIR>/pmap-real_cases-shared/lumi$ make_prepare_pmap --project=pmap-real_cases-shared --branch=lumi --refresh-python-venv
 <HPCS_APPS_ROOT_DIR>/pmap-real_cases-shared/lumi$ . $HPCS_SCRIPTS_ROOT_DIR/prepare_pmap_real_cases_shared.sh
 
 # generate the script select_gpu.sh (see https://docs.lumi-supercomputer.eu/runjobs/scheduled-jobs/distribution-binding/#gpu-binding)
