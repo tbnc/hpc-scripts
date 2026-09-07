@@ -106,7 +106,8 @@ def core(
 
             # install the model with all its python dependencies
             if refresh_python_venv:
-                common.utils.run("uv pip install --prerelease=allow -e .[dev,gpu,mpi-test]")
+                common.utils.run("uv pip install --prerelease=allow -r requirements-dev-mpi.txt")
+                common.utils.run("uv pip install -e .[gpu]")
 
     return fname
 
