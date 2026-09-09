@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 # >>> config: start
 ACCOUNT: int = defaults.ACCOUNT
 BRANCH: str = "lumi"
-DACE_DEFAULT_BLOCK_SIZE: str = "'256,1,1'"
+DACE_DEFAULT_BLOCK_SIZE: str | None = None
 DRY_RUN: bool = False
 ENV: defs.ProgrammingEnvironment = "cray"
 GHEX_AGGREGATE_FIELDS: bool = False

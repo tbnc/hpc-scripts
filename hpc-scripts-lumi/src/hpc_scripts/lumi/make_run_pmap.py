@@ -11,7 +11,7 @@ from hpc_scripts.lumi import defaults, defs, make_prepare_pmap, make_select_gpu,
 
 # >>> config: start
 BRANCH: str = "main"
-DACE_DEFAULT_BLOCK_SIZE: str = ""
+DACE_DEFAULT_BLOCK_SIZE: str | None = None
 GHEX_AGGREGATE_FIELDS: bool = False
 GHEX_COLLECT_STATISTICS: bool = False
 GT_BACKEND: str = "gt:gpu"
@@ -93,7 +93,7 @@ def core(
             )
             common.utils.export_variable("PMAP_EXTENDED_TIMERS", int(pmap_extended_timers))
             common.utils.export_variable("PMAP_PRECISION", pmap_precision)
-            if utils.get_partition_type(partition) == "gpu":
+            if utils.get_partition_type(partition) == "gpu" and dace_default_block_size:
                 common.utils.export_variable("DACE_DEFAULT_BLOCK_SIZE", dace_default_block_size)
 
             srun_options = utils.get_srun_options(
