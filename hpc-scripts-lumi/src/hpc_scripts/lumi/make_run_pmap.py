@@ -11,7 +11,7 @@ from hpc_scripts.lumi import defaults, defs, make_prepare_pmap, make_select_gpu,
 
 # >>> config: start
 BRANCH: str = "main"
-DACE_DEFAULT_BLOCK_SIZE: str = ""
+DACE_DEFAULT_BLOCK_SIZE: str | None = None
 GHEX_AGGREGATE_FIELDS: bool = False
 GHEX_COLLECT_STATISTICS: bool = False
 GT_BACKEND: str = "gt:gpu"
@@ -52,7 +52,6 @@ def core(
     pmap_precision: defs.FloatingPointPrecision,
     project: str,
     python_version: defs.PythonVersion,
-    refresh_python_venv: bool,
     rocm_version: str,
     stack: defs.SoftwareStack,
     stack_version: str,
@@ -67,7 +66,6 @@ def core(
         partition,
         project,
         python_version,
-        refresh_python_venv,
         rocm_version,
         stack,
         stack_version,
@@ -93,7 +91,7 @@ def core(
             )
             common.utils.export_variable("PMAP_EXTENDED_TIMERS", int(pmap_extended_timers))
             common.utils.export_variable("PMAP_PRECISION", pmap_precision)
-            if utils.get_partition_type(partition) == "gpu":
+            if utils.get_partition_type(partition) == "gpu" and dace_default_block_size:
                 common.utils.export_variable("DACE_DEFAULT_BLOCK_SIZE", dace_default_block_size)
 
             srun_options = utils.get_srun_options(
@@ -150,7 +148,6 @@ if __name__ == "__main__":
     parser.add_argument("--pmap-precision", type=str, default=PMAP_PRECISION)
     parser.add_argument("--project", type=str, default=PROJECT)
     parser.add_argument("--python-version", type=str, default=defaults.PYTHON_VERSION)
-    parser.add_argument("--refresh-python-venv", action="store_true")
     parser.add_argument("--rocm-version", type=str, default=defaults.ROCM_VERSION)
     parser.add_argument("--stack", type=str, default=defaults.STACK)
     parser.add_argument("--stack-version", type=str, default=defaults.STACK_VERSION)

@@ -10,24 +10,24 @@ from hpc_scripts.santis import defaults, defs, make_run_pmap, sbatch, utils
 
 # >>> config: start
 ACCOUNT: defs.Account = defaults.ACCOUNT
-BRANCH: str = "main"
-DACE_DEFAULT_BLOCK_SIZE: str = "'256,1,1'"
+BRANCH: str = "nesting-radiation"
+DACE_DEFAULT_BLOCK_SIZE: str | None = None
 DRY_RUN: bool = False
 GHEX_AGGREGATE_FIELDS: bool = False
 GHEX_COLLECT_STATISTICS: bool = False
 GHEX_TRANSPORT_BACKEND: defs.GHEXTransportBackend = defaults.GHEX_TRANSPORT_BACKEND
 GT_BACKEND: list[str] = ["dace:gpu"]
-NUM_RUNS: int = 11
-PARTITION: defs.Partition = "debug"
-PMAP_DISABLE_LOG: bool = True
-PMAP_ENABLE_BENCHMARKING: bool = True
+NUM_RUNS: int = 1
+PARTITION: defs.Partition = defaults.PARTITION
+PMAP_DISABLE_LOG: bool = False
+PMAP_ENABLE_BENCHMARKING: bool = False
 PMAP_ENABLE_OVERCOMPUTING: bool = True
 PMAP_EXTENDED_TIMERS: bool = False
-PMAP_PRECISION: list[defs.FloatingPointPrecision] = ["double"]
+PMAP_PRECISION: list[defs.FloatingPointPrecision] = ["single"]
 PYTHON_VERSION: defs.PythonVersion = defaults.PYTHON_VERSION
-TIME: str = "00:30:00"
+TIME: str = "03:00:00"
 USE_CASE: dict[str, list[common.utils.ThreadsLayout]] = {
-    "weak-scaling/bomex-prescribed-boundary/alps/santis/4": [common.utils.ThreadsLayout(1, 4, 64)]
+    "tests/nesting/baroclinic_wave_sphere_moist_rotated": [common.utils.ThreadsLayout(1, 1, 64)]
 }
 UENV: defs.UEnv = defaults.UENV
 # >>> config: end
@@ -69,6 +69,7 @@ def main():
                     pmap_extended_timers=PMAP_EXTENDED_TIMERS,
                     pmap_precision=pmap_precision,
                     python_version=PYTHON_VERSION,
+                    refresh_python_venv=False,  # no internet connection on the compute nodes
                     uenv=UENV,
                     use_case=use_case,
                 )

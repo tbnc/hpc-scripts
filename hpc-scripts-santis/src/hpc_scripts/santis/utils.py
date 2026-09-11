@@ -51,3 +51,21 @@ def setup_ghex(transport_backend: defs.GHEXTransportBackend) -> None:
 
 def setup_cuda() -> None:
     common.utils.export_variable("CUDA_HOME", "$(spack location -i cuda)")
+
+
+def setup_gt4py(project_root: str, uenv: defs.UEnv) -> None:
+    common.utils.export_variable(
+        "GT_CACHE_ROOT",
+        (gt_cache_root := os.path.join(project_root, "_gtcache", get_uenv_with_dashes(uenv))),
+    )
+    common.utils.export_variable("GT4PY_BUILD_CACHE_DIR", gt_cache_root)
+    common.utils.export_variable("GT4PY_BUILD_CACHE_LIFETIME", "persistent")
+
+    common.utils.export_variable(
+        "GT4PY_EXTRA_COMPILE_ARGS", "'-fconstexpr-ops-limit=1000000000 -Wno-unused-variable'"
+    )
+    common.utils.export_variable(
+        "GT4PY_CARTESIAN_EXTRA_CUDA_COMPILE_ARGS", "'--diag-suppress=1835 --diag-suppress=20012'"
+    )
+
+    common.utils.export_variable("DACE_CONFIG", os.path.join(gt_cache_root, ".dace.conf"))

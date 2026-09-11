@@ -22,6 +22,7 @@ def core(
         f"--account={account}",
         f"--nodes={num_nodes}",
         f"--ntasks-per-node={num_tasks_per_node}",
+        "--gpus-per-task=1",
         f"--partition={partition}",
         f"--time={time}",
     ]

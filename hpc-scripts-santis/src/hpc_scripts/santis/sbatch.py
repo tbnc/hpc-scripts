@@ -52,6 +52,7 @@ def core(
                 f"--account={account}",
                 f"--error={error}",
                 "--export=ALL",
+                "--gpus-per-task=1",
                 f"--job-name={job_name}",
                 f"--nodes={num_nodes}",
                 f"--ntasks-per-node={num_tasks_per_node}",

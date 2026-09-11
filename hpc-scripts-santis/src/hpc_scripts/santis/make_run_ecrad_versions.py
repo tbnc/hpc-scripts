@@ -6,13 +6,13 @@ import argparse
 from typing import Literal
 
 from hpc_scripts import common
-from hpc_scripts.santis import defs, make_prepare_ecrad_porting
+from hpc_scripts.santis import defaults, defs, make_prepare_ecrad_versions
 
 # >>> config: start
 BRANCH: str = "solvers-cy49r1"
-DACE_DEFAULT_BLOCK_SIZE: str = ""
+DACE_DEFAULT_BLOCK_SIZE: str | None = None
 ECRAD_ENABLE_CHECKS: bool = True
-ECRAD_MODE: Literal["fortran", "gt4py"] = "gt4py"
+ECRAD_MODE: Literal["fortran", "gt4py", "validate", "validate_all"] = "gt4py"
 ECRAD_NUM_RUNS: int = 0
 ECRAD_PRECISION: defs.FloatingPointPrecision = "double"
 ECRAD_STENCIL_NAME: str = "ecrad_ecckd_tripleclouds"
@@ -23,15 +23,15 @@ NUM_NODES: int = 1
 NUM_RUNS: int = 1
 NUM_TASKS_PER_NODE: int = 1
 NUM_THREADS_PER_TASK: int = 64
-PYTHON_VERSION: defs.PythonVersion = "3.11"
+REFRESH_PYTHON_VENV: bool = False
 # >>> config: end
 
 
 def core(
     branch: str,
-    dace_default_block_size: str,
+    dace_default_block_size: str | None,
     ecrad_enable_checks: bool,
-    ecrad_mode: Literal["fortran", "gt4py"],
+    ecrad_mode: Literal["fortran", "gt4py", "validate", "validate_all"],
     ecrad_num_runs: int,
     ecrad_precision: defs.FloatingPointPrecision,
     ecrad_stencil_name: str,
@@ -43,8 +43,12 @@ def core(
     num_tasks_per_node: int,
     num_threads_per_task: int,
     python_version: defs.PythonVersion,
+    refresh_python_venv: bool,
+    uenv: defs.UEnv,
 ) -> str:
-    prepare_ecrad_fname = make_prepare_ecrad_porting.core(branch, python_version)
+    prepare_ecrad_fname = make_prepare_ecrad_versions.core(
+        branch, python_version, refresh_python_venv, uenv
+    )
 
     with common.utils.output_file(filename="run_ecrad_versions") as (_, fname):
         common.utils.run(f"source {prepare_ecrad_fname}")
@@ -55,22 +59,44 @@ def core(
             common.utils.export_variable("OMP_PROC_BIND", "close")
             # common.utils.export_variable("OMP_DISPLAY_AFFINITY", "True")
             # common.utils.export_variable("GT4PY_EXTRA_COMPILE_ARGS", "'-fbracket-depth=32768'")
-            common.utils.export_variable("DACE_DEFAULT_BLOCK_SIZE", dace_default_block_size)
             if gt_backend in ["cuda", "dace:gpu", "gt:gpu"]:
                 common.utils.export_variable("CUDA_HOST_CXX", "$CXX")
+            if dace_default_block_size:
+                common.utils.export_variable("DACE_DEFAULT_BLOCK_SIZE", dace_default_block_size)
 
             srun_options = (
                 f"--nodes={num_nodes} --ntasks-per-node={num_tasks_per_node} --gpus-per-task=1"
             )
-            ecrad_command = (
-                f"ecrad_{ecrad_mode} --name={ecrad_stencil_name} "
-                f"--version={ecrad_stencil_version} --precision={ecrad_precision} "
-                f"--num-runs={ecrad_num_runs} {'--verbose ' if ecrad_verbose else ''}"
-            )
-            if ecrad_mode == "gt4py":
-                ecrad_command += (
-                    f"--backend={gt_backend} {'--enable-checks' if ecrad_enable_checks else ''}"
-                )
+
+            common.utils.run(f"srun {srun_options} ecrad_setup --precision={ecrad_precision}")
+
+            match ecrad_mode:
+                case "fortran":
+                    ecrad_command = (
+                        f"ecrad_fortran --name={ecrad_stencil_name} "
+                        f"--version={ecrad_stencil_version} --precision={ecrad_precision} "
+                        f"--num-runs={ecrad_num_runs} {'--verbose ' if ecrad_verbose else ''}"
+                    )
+                case "gt4py":
+                    ecrad_command = (
+                        f"ecrad_gt4py --name={ecrad_stencil_name} "
+                        f"--version={ecrad_stencil_version} --precision={ecrad_precision} "
+                        f"--num-runs={ecrad_num_runs} {'--verbose ' if ecrad_verbose else ''}"
+                        f"--backend={gt_backend} {'--enable-checks' if ecrad_enable_checks else ''}"
+                    )
+                case "validate":
+                    ecrad_command = (
+                        f"ecrad_validate --name={ecrad_stencil_name} "
+                        f"--version={ecrad_stencil_version} --precision={ecrad_precision} "
+                        f"--backend={gt_backend} {'--verbose ' if ecrad_verbose else ''}"
+                    )
+                case "validate_all":
+                    ecrad_command = (
+                        f"ecrad_validate_all --version=cy49r1s "
+                        f"--precision={ecrad_precision} --backend={gt_backend} "
+                        f"{'--verbose ' if ecrad_verbose else ''}"
+                    )
+
             command = f"srun {srun_options} time {ecrad_command}"
 
             for _ in range(num_runs):
@@ -96,6 +122,8 @@ if __name__ == "__main__":
     parser.add_argument("--num-tasks-per-node", type=int, default=NUM_TASKS_PER_NODE)
     parser.add_argument("--num-threads-per-task", type=int, default=NUM_THREADS_PER_TASK)
     parser.add_argument("--python-version", type=str, default=defs.PythonVersion)
+    parser.add_argument("--refresh-python-venv", action="store_true")
+    parser.add_argument("--uenv", type=str, default=defaults.UENV)
     args = parser.parse_args()
     with common.utils.output_directory():
         core(**args.__dict__)

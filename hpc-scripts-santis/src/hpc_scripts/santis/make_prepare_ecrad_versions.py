@@ -13,11 +13,13 @@ BRANCH: str = "cy49r1s-pmap"
 # >>> config: end
 
 
-def core(branch: str, python_version: defs.PythonVersion, uenv: defs.UEnv) -> str:
+def core(
+    branch: str, python_version: defs.PythonVersion, refresh_python_venv: bool, uenv: defs.UEnv
+) -> str:
     with common.utils.output_file(filename="prepare_ecrad_versions") as (_, fname):
         make_build_spack_env.activate_view("ecrad", uenv)
 
-        # set path to ecrad-porting code
+        # set path to ecrad-versions code
         ecrad_root = os.path.join(common.config.APPS_ROOT_DIR, "ecrad-versions")
         if not os.path.exists(ecrad_dir := os.path.join(ecrad_root, branch)):
             common.utils.run(
@@ -25,31 +27,26 @@ def core(branch: str, python_version: defs.PythonVersion, uenv: defs.UEnv) -> st
             )
         common.utils.export_variable("ECRAD", ecrad_dir)
 
-        common.utils.export_variable(
-            "GT_CACHE_ROOT",
-            gt_cache_root := os.path.join(
-                ecrad_root, "_gtcache", uenv_with_dashes := utils.get_uenv_with_dashes(uenv)
-            ),
-        )
-        common.utils.export_variable(
-            "GT4PY_EXTRA_COMPILE_ARGS", "'-fconstexpr-ops-limit=100000000'"
-        )
-        common.utils.export_variable("DACE_CONFIG", os.path.join(gt_cache_root, ".dace.conf"))
+        utils.setup_gt4py(ecrad_root, uenv)
 
         with common.utils.chdir(ecrad_dir, restore=False):
             venv_dir = os.path.join(
-                ecrad_dir, "_venv", uenv_with_dashes, f"py{python_version.replace('.', '')}"
+                ecrad_dir,
+                "_venv",
+                utils.get_uenv_with_dashes(uenv),
+                f"py{python_version.replace('.', '')}",
             )
             common.utils.export_variable("ECRAD_VENV", venv_dir)
             if not os.path.exists(venv_dir):
+                refresh_python_venv = True
                 utils.setup_uv(uenv)
                 common.utils.run(f"uv venv --python=$(which python{python_version}) {venv_dir}")
-                common.utils.run(f". {venv_dir}/bin/activate")
-                common.utils.run(
-                    f"uv pip install -e .[dev,gpu{'-cuda12x' if python_version < '3.14' else ''}]"
-                )
-            else:
-                common.utils.run(f". {venv_dir}/bin/activate")
+
+            common.utils.run(f". {venv_dir}/bin/activate")
+
+            if refresh_python_venv:
+                common.utils.run("uv pip install -e .[dev,gpu]")
+                common.utils.run("uv pip install 'dace==2.0.0a5'")
 
     return fname
 
@@ -58,6 +55,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--branch", type=str, default=BRANCH)
     parser.add_argument("--python-version", type=str, default=defaults.PYTHON_VERSION)
+    parser.add_argument("--refresh-python-venv", action="store_true")
     parser.add_argument("--uenv", type=str, default=defaults.UENV)
     args = parser.parse_args()
     core(**args.__dict__)
