@@ -10,7 +10,7 @@ from hpc_scripts.santis import defaults, defs, make_prepare_pmap
 
 # >>> config: start
 BRANCH: str = "main"
-DACE_DEFAULT_BLOCK_SIZE: str = ""
+DACE_DEFAULT_BLOCK_SIZE: str | None = None
 GHEX_AGGREGATE_FIELDS: bool = False
 GHEX_COLLECT_STATISTICS: bool = False
 GT_BACKEND: str = "gt:gpu"
@@ -45,11 +45,12 @@ def core(
     pmap_extended_timers: bool,
     pmap_precision: defs.FloatingPointPrecision,
     python_version: defs.PythonVersion,
+    refresh_python_venv: bool,
     uenv: defs.UEnv,
     use_case: str,
 ) -> str:
     prepare_pmap_fname = make_prepare_pmap.core(
-        branch, ghex_transport_backend, python_version, uenv
+        branch, ghex_transport_backend, python_version, refresh_python_venv, uenv
     )
 
     with common.utils.output_file(filename="run_pmap") as (_, fname):
@@ -71,7 +72,8 @@ def core(
             )
             common.utils.export_variable("PMAP_EXTENDED_TIMERS", int(pmap_extended_timers))
             common.utils.export_variable("PMAP_PRECISION", pmap_precision)
-            common.utils.export_variable("DACE_DEFAULT_BLOCK_SIZE", dace_default_block_size)
+            if dace_default_block_size:
+                common.utils.export_variable("DACE_DEFAULT_BLOCK_SIZE", dace_default_block_size)
 
             if output_dir is not None:
                 output_dir = os.path.abspath(output_dir)
@@ -119,6 +121,7 @@ if __name__ == "__main__":
     parser.add_argument("--pmap-extended-timers", type=bool, default=PMAP_EXTENDED_TIMERS)
     parser.add_argument("--pmap-precision", type=str, default=PMAP_PRECISION)
     parser.add_argument("--python", type=str, default=defaults.PYTHON_VERSION)
+    parser.add_argument("--refresh-python-venv", action="store_true")
     parser.add_argument("--uenv", type=str, default=defaults.UENV)
     parser.add_argument("--use-case", type=str, default=USE_CASE)
     args = parser.parse_args()

@@ -20,15 +20,17 @@ def activate_view(project: str, uenv: defs.UEnv) -> None:
     common.utils.run(f". {_get_build_dir(project, uenv)}/view/activate.sh")
 
 
-def core(project: str, specs: tuple[str, ...], uenv: defs.UEnv) -> str:
+def core(project: str, specs: tuple[str, ...], uenv: defs.UEnv, clear: bool = False) -> str:
     with common.utils.output_file(filename=f"build_spack_env_{project.replace('-', '_')}"):
         build_dir = _get_build_dir(project, uenv)
-        common.utils.run(f"rm -rf {build_dir}")
-        common.utils.run(f"uenv-spack {build_dir} --uarch=gh200 --name=pmap")
+        if clear:
+            common.utils.run(f"rm -rf {build_dir}")
+        common.utils.run(f"uenv-spack {build_dir} --uarch=gh200 --name={project}")
 
         with common.utils.output_file(
             filename=f"spack/{_get_relative_build_dir(project, uenv)}/spack.yaml"
         ) as (_, spack_yaml):
+            spec_list = "\n".join("    - " + spec for spec in specs)
             common.utils.run(
                 f"""spack:
   include:
@@ -40,7 +42,7 @@ def core(project: str, specs: tuple[str, ...], uenv: defs.UEnv) -> str:
     unify: when_possible
     reuse: true
   specs:
-{"\n".join("    - " + spec for spec in specs)}
+{spec_list}
   packages:
     all:
       variants: [ '+mpi', '+cuda', 'cuda_arch=90']
@@ -51,7 +53,7 @@ def core(project: str, specs: tuple[str, ...], uenv: defs.UEnv) -> str:
     default:
       # one of (run, roots, all)
       link: run
-      root: {build_dir}/store/env/pmap
+      root: {build_dir}/store/env/{project}
       projections:
         python: '{{name}}@{{version}}'"""
             )

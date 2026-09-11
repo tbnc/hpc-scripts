@@ -35,7 +35,6 @@ def core(
     partition: defs.Partition,
     project: str,
     python_version: defs.PythonVersion,
-    refresh_python_venv: bool,
     rocm_version: str,
     stack: defs.SoftwareStack,
     stack_version: Optional[str],
@@ -96,16 +95,18 @@ def core(
         with common.utils.chdir(pmap_dir, restore=False):
             if not os.path.exists(pmap_venv_dir):
                 # create virtual environment if it does not exist yet
-                refresh_python_venv = True
                 common.utils.run(
                     f"uv venv --python={python} --prompt={pmap_subtree} {pmap_venv_dir}"
                 )
+                install_pmap = True
+            else:
+                install_pmap = False
 
             # activate venv
             common.utils.run(f"source {pmap_venv_dir}/bin/activate")
 
-            # install the model with all its python dependencies
-            if refresh_python_venv:
+            if install_pmap:
+                # install the model with all its frozen python dependencies
                 common.utils.run("uv pip install --prerelease=allow -r requirements-dev-mpi.txt")
                 common.utils.run("uv pip install -e .[gpu]")
 
@@ -124,7 +125,6 @@ def main() -> None:
     parser.add_argument("--partition", type=str, default=defaults.PARTITION)
     parser.add_argument("--project", type=str, default=PROJECT)
     parser.add_argument("--python-version", type=str, default=defaults.PYTHON_VERSION)
-    parser.add_argument("--refresh-python-venv", action="store_true")
     parser.add_argument("--rocm-version", type=str, default=defaults.ROCM_VERSION)
     parser.add_argument("--stack", type=str, default=defaults.STACK)
     parser.add_argument("--stack-version", type=str, default=defaults.STACK_VERSION)

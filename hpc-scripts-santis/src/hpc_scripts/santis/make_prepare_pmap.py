@@ -34,20 +34,15 @@ def core(
             )
         common.utils.export_variable("PMAP", pmap_dir)
 
-        common.utils.export_variable(
-            "GT_CACHE_ROOT",
-            (
-                gt_cache_root := os.path.join(
-                    pmap_root, "_gtcache", uenv_with_dashes := utils.get_uenv_with_dashes(uenv)
-                )
-            ),
-        )
-        # common.utils.export_variable("GT4PY_EXTRA_COMPILE_ARGS", "'-fbracket-depth=4096'")
-        common.utils.export_variable("DACE_CONFIG", os.path.join(gt_cache_root, ".dace.conf"))
+        utils.setup_gt4py(pmap_root, uenv)
 
         with common.utils.chdir(pmap_dir, restore=False):
             venv_dir = os.path.join(
-                pmap_dir, "_venv", uenv_with_dashes, f"py{python_version.replace('.', '')}"
+                pmap_dir,
+                "_venv",
+                utils.get_uenv_with_dashes(uenv),
+                ghex_transport_backend,
+                f"py{python_version.replace('.', '')}",
             )
             common.utils.export_variable("PMAP_VENV", venv_dir)
 
@@ -60,9 +55,10 @@ def core(
 
             if refresh_python_venv:
                 common.utils.run(
-                    f"uv pip install -e "
-                    f".[dev,gpu{'-cuda12x' if python_version < '3.14' else ''},mpi-test]"
+                    f"uv pip install --prerelease=allow -e "
+                    f".[dev,gpu{'-cuda13x' if python_version < '3.14' else ''},ice4,mpi-test]"
                 )
+                common.utils.run("uv pip install 'dace==2.0.0a5'")
 
     return fname
 
