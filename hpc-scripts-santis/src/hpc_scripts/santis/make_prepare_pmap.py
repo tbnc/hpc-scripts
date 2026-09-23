@@ -55,10 +55,10 @@ def core(
 
             if refresh_python_venv:
                 common.utils.run(
-                    f"uv pip install --prerelease=allow -e "
-                    f".[dev,gpu{'-cuda13x' if python_version < '3.14' else ''},ice4,mpi-test]"
+                    f"uv pip install --prerelease=allow -e .[dev,gpu"
+                    f"{f'-cuda{utils.get_cuda_version(uenv)}x' if python_version < '3.14' else ''},"
+                    f"ice4,mpi-test]"
                 )
-                common.utils.run("uv pip install 'dace==2.0.0a5'")
 
     return fname
 

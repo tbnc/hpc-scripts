@@ -57,7 +57,7 @@ Pass the `-h` flag to any command to get its synopsis.
 
 ### Example
 
-Installing PMAP-real_cases-shared using the software stack LUMI/25.03, and run a benchmark on one GPU.
+Installing the `lumi/real_cases_stable` of PMAP-snapshots using the software stack LUMI/25.03, and run a benchmark on one GPU.
 
 ```bash
 # build hdf5 with parallel support
@@ -70,22 +70,25 @@ Installing PMAP-real_cases-shared using the software stack LUMI/25.03, and run a
 ~$ make_build_netcdf
 ~$ . $HPCS_SCRIPTS_ROOT_DIR/build_netcdf.sh
 
-# build and install pmap in a dedicated virtual environment, jump into the project directory and
-#  activate the environment
-~$ make_prepare_pmap --project=pmap-real_cases-shared --branch=lumi
-~$ . $HPCS_SCRIPTS_ROOT_DIR/prepare_pmap_real_cases_shared.sh
+# install python 3.12 using uv (`cray-python` module is based on python 3.11, which is no longer
+#  supported by GT4Py)
+~$ uv python install 3.12
+
+# build and install pmap in a dedicated virtual environment using python 3.12, jump into the project
+#  directory and activate the environment
+~$ make_prepare_pmap --project=pmap-snapshots --branch=lumi/real_cases_stable
+~$ . $HPCS_SCRIPTS_ROOT_DIR/prepare_pmap_snapshots.sh
 
 # allocate one GPU node on the dev-g partition for an hour
-(...) <HPCS_APPS_ROOT_DIR>/pmap-real_cases-shared/lumi$ pysalloc --partition=dev-g --time=01:00:00
+(...) <HPCS_APPS_ROOT_DIR>/pmap-snapshots/lumi/real_cases_stable$ pysalloc --partition=dev-g --time=01:00:00
 
-# refresh the script prepare_pmap_real_cases_shared.sh, so to bypass the creation of the virtual environment
-# the flag --refresh-python-venv can be used to re-install the model with all its python dependencies
-<HPCS_APPS_ROOT_DIR>/pmap-real_cases-shared/lumi$ make_prepare_pmap --project=pmap-real_cases-shared --branch=lumi --refresh-python-venv
-<HPCS_APPS_ROOT_DIR>/pmap-real_cases-shared/lumi$ . $HPCS_SCRIPTS_ROOT_DIR/prepare_pmap_real_cases_shared.sh
+# refresh the script `prepare_pmap_snapshots.sh`, so to bypass the creation of the virtual environment
+<HPCS_APPS_ROOT_DIR>/pmap-snapshots/lumi/real_cases_stable$ make_prepare_pmap --project=pmap-snapshots --branch=lumi/real_cases_stable
+<HPCS_APPS_ROOT_DIR>/pmap-snapshots/lumi/real_cases_stable$ . $HPCS_SCRIPTS_ROOT_DIR/prepare_pmap_snapshots.sh
 
 # generate the script select_gpu.sh (see https://docs.lumi-supercomputer.eu/runjobs/scheduled-jobs/distribution-binding/#gpu-binding)
-(...) <HPCS_APPS_ROOT_DIR>/pmap-real_cases-shared/lumi$ make_select_gpu
+(...) <HPCS_APPS_ROOT_DIR>/pmap-snapshots/lumi/real_cases_stable$ make_select_gpu
 
 # run the moist baroclinic wave benchmark
-(...) <HPCS_APPS_ROOT_DIR>/pmap-real_cases-shared/lumi$ GT_BACKEND=dace:gpu srun --ntasks=1 --cpus-per-task=7 ./../../select_gpu.sh pmap config/baroclinic_wave_sphere_moist.yml
+(...) <HPCS_APPS_ROOT_DIR>/pmap-snapshots/lumi/real_cases_stable$ GT_BACKEND=dace:gpu srun --ntasks=1 --cpus-per-task=7 ./../../../select_gpu.sh pmap config/baroclinic_wave_sphere_moist.yml
 ```

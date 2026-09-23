@@ -127,6 +127,12 @@ def get_subtree(
             return subtree
 
 
+def setup_uv(subtree: str) -> None:
+    common.utils.export_variable(
+        "UV_CACHE_DIR", os.path.join(common.config.APPS_ROOT_DIR, "_uvcache", subtree)
+    )
+
+
 def setup_hip(rocm_version: str) -> None:
     common.utils.export_variable("CUDA_HOME", f"/opt/rocm-{rocm_version}")
     common.utils.export_variable("CUPY_ACCELERATORS", "cub")

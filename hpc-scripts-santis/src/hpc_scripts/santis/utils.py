@@ -69,3 +69,7 @@ def setup_gt4py(project_root: str, uenv: defs.UEnv) -> None:
     )
 
     common.utils.export_variable("DACE_CONFIG", os.path.join(gt_cache_root, ".dace.conf"))
+
+
+def get_cuda_version(uenv: defs.UEnv) -> str:
+    return "13" if "26.3" in uenv else "12"
