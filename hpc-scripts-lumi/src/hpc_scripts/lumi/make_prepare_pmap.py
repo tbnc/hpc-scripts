@@ -91,6 +91,9 @@ def core(
         make_build_hdf5.setup(env, stack, stack_version, hdf5_version)
         make_build_netcdf.setup(env, stack, stack_version, hdf5_version, netcdf_version)
 
+        # configure uv
+        utils.setup_uv(pmap_subtree)
+
         # jump into project source directory
         with common.utils.chdir(pmap_dir, restore=False):
             if not os.path.exists(pmap_venv_dir):

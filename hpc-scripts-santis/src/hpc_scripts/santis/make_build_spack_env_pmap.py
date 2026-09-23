@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import argparse
 
-from hpc_scripts.santis import defaults, make_build_spack_env
+from hpc_scripts.santis import defaults, make_build_spack_env, utils
 
 
 def main() -> None:
@@ -17,12 +17,12 @@ def main() -> None:
         project="pmap",
         specs=(
             "boost",
-            "openmpi" if "openmpi" in args.__dict__["uenv"] else "cray-mpich",
-            "cuda@13",
-            "gcc",
+            "openmpi" if "openmpi" in (uenv := args.__dict__["uenv"]) else "cray-mpich",
+            f"cuda@{utils.get_cuda_version(uenv)}",
+            "gcc@14",
             "hdf5",
             "libffi",
-            "netcdf-c",
+            "netcdf-c" + " ~blosc" if uenv == "prgenv-gnu/25.11:v1" else "",
             "python@3.11",
             "python@3.12",
             "python@3.13",
