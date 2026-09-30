@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 
 # >>> config: start
-BRANCH: str = "cy49r1s-pmap"
+BRANCH: str = "main"
 # >>> config: end
 
 
@@ -32,32 +32,33 @@ def core(
     nco_version: str,
     netcdf_version: str,
     partition: defs.Partition,
+    python_version: defs.PythonVersion,
     rocm_version: str,
     stack: defs.SoftwareStack,
     stack_version: Optional[str],
 ) -> str:
-    with common.utils.output_file(filename="prepare_ecrad_porting") as (_, fname):
+    with common.utils.output_file(filename="prepare_ecrad_versions") as (_, fname):
         # clear environment and load relevant modules
-        cpe = utils.setup_env(env, partition, stack, stack_version, load_cdo=True)
-        common.utils_module.module_load("buildtools", "cray-python")
+        cpe = utils.setup_env(env, partition, stack, stack_version)
         utils.load_boost(cpe, stack_version)
+        utils.load_python(python_version)
         partition_type = utils.get_partition_type(partition)
         if partition_type == "gpu":
             common.utils_module.module_load(f"rocm/{rocm_version}")
 
-        # set path to ecrad-porting code
-        ecrad_dir = os.path.join(common.config.APPS_ROOT_DIR, "ecrad-porting", branch)
-        assert os.path.exists(ecrad_dir)
+        # set path to ecrad-versions code, cloning the repo if the directory does not exist yet
+        ecrad_dir = os.path.join(common.config.APPS_ROOT_DIR, "ecrad-versions", branch)
+        if not os.path.exists(ecrad_dir):
+            common.utils.run(
+                f"git clone -b {branch} git@github.com:PMAP-Project/ecRad-versions.git {ecrad_dir}"
+            )
         common.utils.export_variable("ECRAD", ecrad_dir)
         subtree = utils.get_subtree(env, stack, stack_version)
         venv_dir = os.path.join(ecrad_dir, "_venv", subtree)
         common.utils.export_variable("ECRAD_VENV", venv_dir)
 
-        # low-level GT4Py, DaCe and GHEX config
-        # gt_cache_root = os.path.join(pwd, "ecrad-porting", "_gtcache", subtree)
-        # common.utils.export_variable("GT_CACHE_ROOT", gt_cache_root)
-        # common.utils.export_variable("GT_CACHE_DIR_NAME", ".gt_cache")
-        # common.utils.export_variable("DACE_CONFIG", os.path.join(gt_cache_root, ".dace.conf"))
+        # low-level GT4Py & DaCe config
+        utils.setup_gt4py("ecrad-versions", subtree)
 
         # set/fix HIP-related variables
         if partition_type == "gpu":
@@ -68,6 +69,9 @@ def core(
         make_build_hdf5.setup(env, stack, stack_version, hdf5_version)
         make_build_netcdf.setup(env, stack, stack_version, hdf5_version, netcdf_version)
         make_build_nco.setup(env, stack, stack_version, hdf5_version, netcdf_version, nco_version)
+
+        # configure uv
+        utils.setup_uv(subtree)
 
         # jump into project source directory
         with common.utils.chdir(ecrad_dir, restore=False):
@@ -91,6 +95,7 @@ def main() -> None:
     parser.add_argument("--nco-version", type=str, default=defaults.NCO_VERSION)
     parser.add_argument("--netcdf-version", type=str, default=defaults.NETCDF_VERSION)
     parser.add_argument("--partition", type=str, default=defaults.PARTITION)
+    parser.add_argument("--python-version", type=str, default=defaults.PYTHON_VERSION)
     parser.add_argument("--rocm-version", type=str, default=defaults.ROCM_VERSION)
     parser.add_argument("--stack", type=str, default=defaults.STACK)
     parser.add_argument("--stack-version", type=str, default=defaults.STACK_VERSION)

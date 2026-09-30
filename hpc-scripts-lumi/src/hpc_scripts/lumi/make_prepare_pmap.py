@@ -69,15 +69,8 @@ def core(
         pmap_venv_dir = os.path.join(pmap_dir, "_venv", pmap_subtree)
         common.utils.export_variable(f"{project_with_underscores.upper()}_VENV", pmap_venv_dir)
 
-        # low-level GT4Py, DaCe and GHEX config
-        gt_cache_root = os.path.join(common.config.APPS_ROOT_DIR, project, "_gtcache", pmap_subtree)
-        common.utils.export_variable("GT_CACHE_ROOT", gt_cache_root)
-        common.utils.export_variable("GT_CACHE_DIR_NAME", ".gt_cache")
-        common.utils.export_variable("GT4PY_EXTRA_COMPILE_ARGS", "'-fbracket-depth=4096'")
-        common.utils.export_variable(
-            "GT4PY_CARTESIAN_EXTRA_CUDA_COMPILE_ARGS", "'-fbracket-depth=4096'"
-        )
-        common.utils.export_variable("DACE_CONFIG", os.path.join(gt_cache_root, ".dace.conf"))
+        # low-level GT4Py & DaCe config
+        utils.setup_gt4py(project, pmap_subtree)
 
         # set/fix HIP-related variables
         if partition_type == "gpu":
