@@ -87,8 +87,8 @@ def core(
                 )
             common.utils.run(f"mkdir -p {output_dir}")
             command = (
-                f"srun "
-                f"--nodes={num_nodes} --ntasks-per-node={num_tasks_per_node} --gpus-per-task=1 "
+                f"srun --nodes={num_nodes} --ntasks-per-node={num_tasks_per_node} "
+                f"--gpus-per-task=1 --gres-flags=allow-task-sharing "
                 f"pmap {os.path.join('config', use_case + '.yml')} "
                 f"--output-directory={output_dir}"
             )

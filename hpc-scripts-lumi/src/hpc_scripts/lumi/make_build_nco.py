@@ -82,7 +82,7 @@ def core(
                 common.utils.append_to_path("LD_LIBRARY_PATH", os.path.join(hdf5_root, "lib"))
 
                 subtree = utils.get_subtree(env, stack, stack_version)
-                build_dir = _get_dir(version, subtree, hdf5_version, netcdf_version)
+                build_dir = _get_build_dir(nco_dir, subtree, hdf5_version, netcdf_version)
                 common.utils.run(f"rm -rf {build_dir}")
                 common.utils.run(
                     f"LDFLAGS='-L{os.path.join(hdf5_root, 'lib')} -lcurl -lhdf5 -lhdf5_hl -lz'",
